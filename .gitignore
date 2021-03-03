@@ -1,0 +1,4 @@
+.venv/*
+venv/*
+*.egg-info
+*civirt/__pycache__/*

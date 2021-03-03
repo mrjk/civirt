@@ -34,23 +34,25 @@ def _prepareconfig(file):
 
     for vm in config['vms']:
         try:
+            vm_name = vm.get('hostname')
+
             # Create a deepcopy otherwise both keys end up using the same dict object
             vm_settings = copy.deepcopy(common_settings)
             # Put VM specific settings overridding and merging with 'common'
             vm_settings.update(vm)
             # Create and add cloud-init's metadata file
-            vm_settings['metadata'] = {}
-            vm_settings['metadata']['instance_id'] = (vm['fqdn'] +
-                ''.join(random.choice(string.ascii_uppercase + string.digits)
-                        for _ in range(5)))
-            vm_settings['metadata']['local-hostname'] = vm['fqdn']
+            #vm_settings['metadata'] = {}
+            #vm_settings['metadata']['instance_id'] = (vm_name +
+            #    ''.join(random.choice(string.ascii_uppercase + string.digits)
+            #            for _ in range(5)))
+            #vm_settings['metadata']['local-hostname'] = vm.hostname
 
-            LOGGER.info(f"{vm['fqdn']} -- Configuration ready.")
+            LOGGER.info(f"{vm_name} -- Configuration ready.")
         except Exception as err:
-            LOGGER.exception(f"{vm['fqdn']} -- Exception generating config."
+            LOGGER.exception(f"{vm_name} -- Exception generating config."
                              f"{err}")
             raise
-        compiledconfig.update({vm['fqdn']: vm_settings})
+        compiledconfig.update({vm_name: vm_settings})
     return compiledconfig
 
 
