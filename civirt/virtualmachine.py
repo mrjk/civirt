@@ -127,7 +127,7 @@ class VirtualMachine:
             LOGGER.info(f"{self.name} - Qcow2 disk does not exist.")
 
         # Remove nocloud ISO
-        if os.path.isfile(self.qcow2['path']):
+        if os.path.isfile(self.cloudinit['path']):
             self.delete_file(self.cloudinit['path'])
         else:
             LOGGER.info(f"{self.name} - Cloudinit iso does not exist.")
