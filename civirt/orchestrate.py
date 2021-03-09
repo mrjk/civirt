@@ -15,7 +15,7 @@ stdouthandler.setFormatter(logformat)
 LOGGER.addHandler(stdouthandler)
 LOGGER.setLevel(logging.INFO)
 
-def _prepareconfig(file):
+def _prepareconfig(file, included=False):
     '''
     Takes in the project's config.yaml and returns proper python dicts with
     which VirtualMachine objects can be instantiated.
@@ -30,8 +30,19 @@ def _prepareconfig(file):
         raise
 
     # Import the top-scoped settings 'common' to all VMs.
-    common_settings = config.get('common')
+    common_settings = config.get('common', {})
 
+    # Return only common field if it is an included config
+    if included == True:
+        return common_settings
+
+    # Import other files if any
+    import_config = config.get('import_common', None)
+    if import_config:
+        imported_settings = _prepareconfig(import_config, included=True)
+        common_settings = copy.deepcopy(imported_settings)
+
+    # Loop over each VMs
     for vm in config['vms']:
         try:
             vm_name = vm.get('hostname')
