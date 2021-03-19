@@ -252,8 +252,19 @@ class VirtualMachine:
 
         cmd.extend(['--name', self.name])
         cmd.extend(['--disk', os.path.abspath(self.qcow2['path'])+',format=qcow2,bus=virtio'])
+        cmd.extend(['--check disk_size', 'off'])
 
-        print (' '.join(cmd))
+        # Append extra volumes
+        for vol in self.volumes:
+            vol_name = vol.get('name')
+            vol_size = vol.get('size', '40')
+            vol_dir = vol.get('dir', self.directory)
+            vol_cmd = [ '--disk',
+                    f"{vol_dir}/{vol_name}.qcow2,format=qcow2,bus=virtio,size={vol_size}"
+                    ]
+            cmd.extend(vol_cmd)
+
+        LOGGER.info("Exec: " + ' '.join(cmd))
         try:
             # generate the xml configuration
             self.domainxml = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
