@@ -40,7 +40,7 @@ def _prepareconfig(file, included=False):
     import_config = config.get('import_common', None)
     if import_config:
         imported_settings = _prepareconfig(import_config, included=True)
-        common_settings = copy.deepcopy(imported_settings)
+        common_settings = {**imported_settings, **common_settings}
 
     # Loop over each VMs
     for vm in config['vms']:
