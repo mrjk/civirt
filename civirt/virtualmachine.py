@@ -25,6 +25,7 @@ class VirtualMachine:
         self.cpu = settings.get('cpu', 1)
         self.mem = settings.get('mem', 512)
 
+        self.volumes = settings.get('volumes', [])
         self.ssh_keys = settings.get('ssh_keys', [])
         self.userdata = settings.get('userdata', None)
 
@@ -214,7 +215,7 @@ class VirtualMachine:
                '-F', 'qcow2', self.qcow2['path']]
         # Append the new disk's size to the qemu-img, if configured.
         if self.qcow2['size']:
-            cmd.append(self.qcow2['size'])
+            cmd.append(str(self.qcow2['size']))
         try:
             subprocess.check_call(cmd, stderr=subprocess.STDOUT)
             LOGGER.info(f"{self.name} - Created qcow2 disk at "
@@ -252,7 +253,7 @@ class VirtualMachine:
 
         cmd.extend(['--name', self.name])
         cmd.extend(['--disk', os.path.abspath(self.qcow2['path'])+',format=qcow2,bus=virtio'])
-        cmd.extend(['--check disk_size', 'off'])
+        cmd.extend(['--check', 'disk_size=off'])
 
         # Append extra volumes
         for vol in self.volumes:
