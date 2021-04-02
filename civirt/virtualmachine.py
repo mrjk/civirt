@@ -7,7 +7,7 @@ from io import BytesIO
 import pycdlib
 import yaml
 from civirt.exceptions import *
-from civirt.network import Network
+from civirt.libvirt import Network, Instance
 
 LOGGER = logging.getLogger(__name__)
 HOSTSFILE = "/etc/hosts"
@@ -87,6 +87,10 @@ class VirtualMachine:
         if not os.path.isdir(self.directory):
             os.makedirs(self.directory)
 
+        # Query libvirt API
+        if self.is_instance_defined():
+            LOGGER.info(f"{self.name} - Instance is already up and running.")
+            return
         self.get_net()
 
         # Add entry to hosts file if it doesnt exist already.
@@ -244,7 +248,24 @@ class VirtualMachine:
         if net_infos.get('domain', None) is None:
             raise Exception(f"ERROR: No domain name configured for network {self.network}")
         
-        #self.domain = net_infos.get('domain', None) or self.net['domain']
+        self.domain = net_infos.get('domain', None) or self.net['domain']
+
+
+    def is_instance_defined(self):
+        '''
+        Retrieve instance informations from libvirt instance
+        '''
+
+        inst = Instance()
+        inst.connect()
+
+        try:
+            inst_infos = inst.get_info(self.name )
+            return True
+        except:
+            return False
+
+
 
     def create_vm(self):
         '''

@@ -8,7 +8,7 @@ import logging
 import sys
 
 
-class Network():
+class LibVirt():
 
     default_uri = 'qemu:///system'
 
@@ -18,6 +18,16 @@ class Network():
         '''
         uri = uri or self.default_uri
         self.conn = libvirt.open(uri)
+
+class Instance(LibVirt):
+
+    def get_info(self, name):
+        net = self.conn.lookupByName(name)
+        xml = str(net.XMLDesc())
+        return xml
+
+
+class Network(LibVirt):
 
     def get_info(self, name):
 
