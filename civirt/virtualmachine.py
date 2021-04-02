@@ -139,75 +139,10 @@ class VirtualMachine:
         else:
             LOGGER.info(f"{self.name} - Cloudinit iso does not exist.")
 
-        # Remove entry from hostsfile
-        #self._delete_entry()
-
         # Remove the output directory
         if os.listdir(self.directory) is None:
             os.rmdir(self.directory)
         LOGGER.info(f"{self.name} - Successfully deleted. ")
-
-#    def _entryexists(self):
-#        '''
-#        Check whether entry exists in /etc/hosts or not.
-#        '''
-#        raise Exception("Deprecated")
-#
-#        with open(HOSTSFILE, 'r') as hostfd:
-#            hosts = hostfd.readlines()
-#        return True if f'{self.entry}\n' in hosts else False
-#
-#
-#    def _add_entry(self):
-#        pass
-#        fqdn = self.name
-#        # entry is just for logging purposes. newline is stripped away.
-#        if not self._entryexists():
-#            try:
-#                with open(HOSTSFILE, 'a') as hosts_fd:
-#                    hosts_fd.write(f'{self.entry}\n')
-#                    LOGGER.info(f'{fqdn} - Added "{self.entry}" to {HOSTSFILE}')
-#            except IOError as err:
-#                LOGGER.exception(f'{fqdn} - Unable to edit hosts file. {err}')
-#                raise
-#            except Exception as err:
-#                LOGGER.exception(f'{fqdn} - Exception adding {self.entry} to hosts file.'
-#                                 f'{err}')
-#                raise
-#        else:
-#            LOGGER.warning(f'{fqdn} - Required entry already present. '
-#                           f'Will not add "{self.entry}" to hosts file')
-
-
-    def _delete_entry(self):
-        pass
-#        fqdn = self.name
-#        removed = False
-#        # entry is just for logging purposes. newline is stripped away.
-#        try:
-#            with open(HOSTSFILE, 'r+') as hostfd:
-#                hosts = hostfd.readlines()
-#                for index, entry in enumerate(hosts[:]):
-#                    if entry == f'{self.entry}\n':
-#                        removed = True
-#                        hosts.pop(index)
-#                        LOGGER.info(f'{fqdn} - Removing {self.entry} from hosts'
-#                                    f'file.')
-#                if removed:
-#                    hostfd.seek(0)
-#                    hostfd.writelines(hosts)
-#                    hostfd.truncate()
-#                else:
-#                    LOGGER.info(f'{fqdn} - No entries matching "{self.entry}" '
-#                                f'were found.')
-#        except IOError as err:
-#            LOGGER.exception(f'{fqdn} - Unable to edit hosts file. {err}')
-#            raise
-#        except Exception as err:
-#            LOGGER.exception(f'{fqdn} - Exception removing entry from hosts '
-#                             f'file. {err}')
-#            raise
-#
 
     def create_disk(self):
         '''
