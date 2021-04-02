@@ -10,6 +10,7 @@ from civirt.virtualmachine import VirtualMachine
 LOGGER = logging.getLogger() #TODO: Using the root logger sets loglevels everywhere
 logformat = logging.Formatter('%(asctime)s - %(funcName)s - '
                               '%(levelname)s - %(message)s')
+logformat = logging.Formatter( '%(levelname)s - %(message)s')
 stdouthandler = logging.StreamHandler(sys.stdout)
 stdouthandler.setFormatter(logformat)
 LOGGER.addHandler(stdouthandler)
