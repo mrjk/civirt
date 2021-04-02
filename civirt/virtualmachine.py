@@ -33,6 +33,10 @@ class VirtualMachine:
         self.directory = settings['directory']
         self.name='_'.join([self.network, self.hostname])
 
+        # Fetch domain from libvirt network
+        self.get_net()
+        self.fqdn = '.'.join([self.hostname, self.domain])
+
         # Copy cloudinit settings to a dedicated dict.
         #self.cloudinit = {'metadata': settings['metadata'],
         #                  'userdata': settings['userdata']}
@@ -57,7 +61,7 @@ class VirtualMachine:
         self.userdata['manage_resolv_conf'] = True
         self.userdata['resolv_conf'] = userdata_resolve
         self.userdata['hostname'] = self.hostname
-        self.userdata['fqdn'] = '.'.join([self.hostname, self.domain])
+        self.userdata['fqdn'] = self.fqdn
         self.userdata['ssh_authorized_keys'] = self.ssh_keys
 
         # Create metadata
@@ -87,14 +91,12 @@ class VirtualMachine:
         if not os.path.isdir(self.directory):
             os.makedirs(self.directory)
 
+
         # Query libvirt API
         if self.is_instance_defined():
             LOGGER.info(f"{self.name} - Instance is already up and running.")
             return
-        self.get_net()
 
-        # Add entry to hosts file if it doesnt exist already.
-        #self._add_entry()
         # Create backing disk
         self.create_disk()
         # Generate xml with virt-install
