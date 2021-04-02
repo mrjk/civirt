@@ -216,6 +216,7 @@ class VirtualMachine:
         fqdn = self.name
         cmd = ['virt-install', '--connect', 'qemu:///system', '--import', f'--os-variant={self.variant}',
                '--autostart',
+               '--metadata', f"title={self.fqdn}",
                '--noautoconsole', '--network', f'network={self.network},model=virtio',
                '--vcpus', str(self.cpu), '--ram', str(self.mem),
                '--print-xml']
