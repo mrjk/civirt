@@ -9,6 +9,9 @@ import yaml
 from civirt.exceptions import *
 from civirt.libvirt import Network, Instance
 
+from dicttoxml import dicttoxml
+import xml.etree.ElementTree as ET
+
 LOGGER = logging.getLogger(__name__)
 HOSTSFILE = "/etc/hosts"
 HOSTS_ENTRY_SUFFIX = "# added by civirt"
@@ -109,6 +112,8 @@ class VirtualMachine:
         self.attach_iso()
         # Start the VM
         self.start_vm()
+        # Save provisionning metada in vm
+        self.metadata_vm()
 
 
     @staticmethod
@@ -184,7 +189,7 @@ class VirtualMachine:
 
         if net_infos.get('domain', None) is None:
             raise Exception(f"ERROR: No domain name configured for network {self.network}")
-        
+
         self.domain = net_infos.get('domain', None) or self.net['domain']
 
 
@@ -382,6 +387,39 @@ class VirtualMachine:
             LOGGER.critical(f"{self.name} - Exception removing "
                             f"{filepath}. {err}")
             raise
+
+    def metadata_vm(self):
+
+        # Rework vm_meta
+        vm_meta = dict(self.__dict__)
+        vm_meta.pop('cloudinit', None)
+        vm_meta.pop('domainxml', None)
+        vm_meta.pop('userdata', None)
+        #vm_meta = {f'civirt_{k}': v for k, v in vm_meta.items()}
+        vm_meta['ansible_host'] = self.fqdn
+        vm_meta['ansible_user'] = 'sysmaint'
+
+        # Disable logging
+        loggin_dicttoxml = logging.getLogger('dicttoxml')
+        loggin_dicttoxml.setLevel(logging.WARNING)
+        URI = "https://github.com/mrjk/civirt/1.0"
+
+        # Ugly trick to remove root key
+        xml = dicttoxml(vm_meta)
+        xml = ET.fromstring(xml)
+        xml = ET.tostring(xml).decode("utf-8")
+
+        cmd = [
+                "virsh", "--connect", "qemu:///system", "metadata", self.name, URI,
+                "--key", 'civirt',
+                '--set', xml,
+                '--config', '--live']
+        LOGGER.info("Exec: " + ' '.join(cmd))
+        try:
+            self.domainxml = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as err:
+            LOGGER.warning(f'{self.fqdn} - Failure saving libvirt xml metadata. '
+                            f'Cmd output: {str(err.output)}')
 
 
     def cleanup_libvirt(self):
