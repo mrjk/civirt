@@ -211,6 +211,12 @@ class VirtualMachine:
             raise BackingDiskException(f"{self.name} - Backing disk at "
                                        f"{self.qcow2['bdisk']} does not exist.")
 
+        if os.path.isfile(self.qcow2['path']):
+            LOGGER.info(f"{self.name} - Disk qcow2 already exists in "
+                        f"{self.qcow2['path']}.")
+            return
+
+
         cmd = ['qemu-img', 'create', '-b', self.qcow2['bdisk'], '-f', 'qcow2',
                '-F', 'qcow2', self.qcow2['path']]
         # Append the new disk's size to the qemu-img, if configured.
@@ -255,11 +261,20 @@ class VirtualMachine:
         cmd.extend(['--disk', os.path.abspath(self.qcow2['path'])+',format=qcow2,bus=virtio'])
         cmd.extend(['--check', 'disk_size=off'])
 
+        # Check if the vm dos not aleready exists
+
         # Append extra volumes
+        vol_prefix = 'vol_'
         for vol in self.volumes:
-            vol_name = vol.get('name')
+            vol_name = vol.get('name', None)
             vol_size = vol.get('size', '40')
             vol_dir = vol.get('dir', self.directory)
+
+            if not vol_name:
+                vol_name = f"{self.name}_disk1"
+            else:
+                vol_name = f"{vol_prefix}{vol_name}"
+
             vol_cmd = [ '--disk',
                     f"{vol_dir}/{vol_name}.qcow2,format=qcow2,bus=virtio,size={vol_size}"
                     ]
