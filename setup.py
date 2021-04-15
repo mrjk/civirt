@@ -9,7 +9,7 @@ setup(name='civirt',
       author_email='sarfaraz.ahmad@live.in',
       license='MIT',
       packages=['civirt'],
-      install_requires=['pycdlib', 'click', 'pyyaml', 'libvirt-python'],
+      install_requires=['pycdlib', 'click', 'pyyaml', 'libvirt-python', 'dicttoxml'],
       zip_safe=False,
       entry_points='''
         [console_scripts]
