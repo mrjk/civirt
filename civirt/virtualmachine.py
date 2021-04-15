@@ -144,6 +144,20 @@ class VirtualMachine:
         else:
             LOGGER.info(f"{self.name} - Cloudinit iso does not exist.")
 
+        # Remove volumes without names
+        vol_incr = 1
+        for vol in self.volumes:
+            vol_name = vol.get('name', None)
+            if vol_name is None:
+                vol_dir = vol.get('dir', self.directory)
+                vol_path = f"{vol_dir}/{self.name}_disk{vol_incr}.qcow2"
+
+                if os.path.isfile(vol_path):
+                    self.delete_file(vol_path)
+                else:
+                    LOGGER.info(f"{self.name} - Instance disk {vol_path} does not exists.")
+                vol_incr = vol_incr + 1
+
         # Remove the output directory
         if os.listdir(self.directory) is None:
             os.rmdir(self.directory)
@@ -229,13 +243,15 @@ class VirtualMachine:
 
         # Append extra volumes
         vol_prefix = 'vol_'
+        vol_incr = 1
         for vol in self.volumes:
             vol_name = vol.get('name', None)
             vol_size = vol.get('size', '40')
             vol_dir = vol.get('dir', self.directory)
 
             if not vol_name:
-                vol_name = f"{self.name}_disk1"
+                vol_name = f"{self.name}_disk{vol_incr}"
+                vol_incr = vol_incr + 1
             else:
                 vol_name = f"{vol_prefix}{vol_name}"
 
