@@ -160,7 +160,7 @@ class VirtualMachine:
                 if os.path.isfile(vol_path):
                     self.delete_file(vol_path)
                 else:
-                    LOGGER.info(f"{self.name} - Instance disk {vol_path} does not exists.")
+                    LOGGER.info(f"{self.name} - Instance disk '{vol_path}' does not exists.")
                 vol_incr = vol_incr + 1
 
         # Remove the output directory
@@ -412,10 +412,10 @@ class VirtualMachine:
         '''
         try:
             os.remove(filepath)
-            LOGGER.info(f"{self.name} -  Removed {filepath}")
+            LOGGER.info(f"{self.name} -  Removed '{filepath}'.")
         except IOError as err:
             LOGGER.critical(f"{self.name} - Exception removing "
-                            f"{filepath}. {err}")
+                            f"'{filepath}'. {err}")
             raise
 
     def metadata_vm(self):
