@@ -169,11 +169,11 @@ class VirtualMachine:
         '''
         if not os.path.isfile(self.qcow2['bdisk']):
             raise BackingDiskException(f"{self.name} - Backing disk at "
-                                       f"{self.qcow2['bdisk']} does not exist.")
+                                       f"'{self.qcow2['bdisk']}' does not exist.")
 
         if os.path.isfile(self.qcow2['path']):
             LOGGER.info(f"{self.name} - Disk qcow2 already exists in "
-                        f"{self.qcow2['path']}.")
+                        f"'{self.qcow2['path']}'.")
             return
 
 
@@ -185,10 +185,10 @@ class VirtualMachine:
         try:
             subprocess.check_call(cmd, stderr=subprocess.STDOUT)
             LOGGER.info(f"{self.name} - Created qcow2 disk at "
-                        f"{self.qcow2['path']}.")
+                        f"'{self.qcow2['path']}'.")
         except subprocess.CalledProcessError as err:
             LOGGER.critical(f"{self.name} : Exception creating qcow2 disk at "
-                            f"{self.qcow2['path']} "
+                            f"'{self.qcow2['path']}'."
                             f"Command output: {str(err.output)}")
             raise
 
@@ -260,7 +260,7 @@ class VirtualMachine:
                     ]
             cmd.extend(vol_cmd)
 
-        LOGGER.info("Exec: " + ' '.join(cmd))
+        LOGGER.debug("Exec: " + ' '.join(cmd))
         try:
             # generate the xml configuration
             self.domainxml = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -283,7 +283,7 @@ class VirtualMachine:
                             f'using virsh.')
             raise subprocess.CalledProcessError
         else:
-            LOGGER.info(f'{fqdn} : Successfully defined virtual machine'
+            LOGGER.info(f'{fqdn} - Successfully defined virtual machine'
                         f' using virsh.')
 
 
@@ -352,10 +352,10 @@ class VirtualMachine:
             # Write the iso file
             iso.write(self.cloudinit['path'])
             LOGGER.info(f"{self.name} - Created nocloud iso at "
-                        f"{self.cloudinit['path']}")
+                        f"'{self.cloudinit['path']}'.")
         except IOError:
             LOGGER.critical(f"{self.name} - Failure creating the "
-                            f"nocloud iso at {self.cloudinit['path']}")
+                            f"nocloud iso at '{self.cloudinit['path']}'.")
             raise
 
 
@@ -426,16 +426,17 @@ class VirtualMachine:
         xml = ET.fromstring(xml)
         xml = ET.tostring(xml).decode("utf-8")
 
+        LOGGER.info(f"{self.name} - Update instance metadata.")
         cmd = [
                 "virsh", "--connect", "qemu:///system", "metadata", self.name, URI,
                 "--key", 'civirt',
                 '--set', xml,
                 '--config', '--live']
-        LOGGER.info("Exec: " + ' '.join(cmd))
+        LOGGER.debug("Exec: " + ' '.join(cmd))
         try:
             self.domainxml = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as err:
-            LOGGER.warning(f'{self.fqdn} - Failure saving libvirt xml metadata. '
+            LOGGER.warning(f'{self.name} - Failure saving libvirt xml metadata. '
                             f'Cmd output: {str(err.output)}')
 
 

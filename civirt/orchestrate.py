@@ -59,7 +59,7 @@ def _prepareconfig(file, included=False):
             #            for _ in range(5)))
             #vm_settings['metadata']['local-hostname'] = vm.hostname
 
-            LOGGER.info(f"{vm_name} -- Configuration ready.")
+            LOGGER.debug(f"{vm_name} -- Configuration ready.")
         except Exception as err:
             LOGGER.exception(f"{vm_name} -- Exception generating config."
                              f"{err}")
@@ -79,9 +79,9 @@ def executor(cfgfile, action):
             vm = VirtualMachine(vm_settings)
             #print(vm)
             eval(f'vm.{action}()')
-            LOGGER.info(f'{fqdn} - Operation {action} successful.')
+            LOGGER.info(f'{vm.name} - Operation {action} successful.')
         except Exception as err:
-            LOGGER.exception(f'{fqdn} -- Operation {action} failed. '
+            LOGGER.exception(f'{vm.name} -- Operation {action} failed. '
                              f'Err: {err}')
 
 def create(cfgfile):
