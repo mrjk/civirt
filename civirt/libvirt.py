@@ -8,6 +8,14 @@ import logging
 import sys
 
 
+# Disable libvirt annoying logging
+# See: https://stackoverflow.com/questions/45541725/avoiding-console-prints-by-libvirt-qemu-python-apis
+def libvirt_callback(userdata, err):
+    pass
+
+libvirt.registerErrorHandler(f=libvirt_callback, ctx=None)
+
+
 class LibVirt():
 
     default_uri = 'qemu:///system'
