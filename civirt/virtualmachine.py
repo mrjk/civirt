@@ -97,21 +97,26 @@ class VirtualMachine:
 
         # Query libvirt API
         if self.is_instance_defined():
-            LOGGER.info(f"{self.name} - Instance is already up and running.")
-            return
+            LOGGER.info(f"{self.name} - Instance is already defined.")
+        else:
 
-        # Create backing disk
-        self.create_disk()
-        # Generate xml with virt-install
-        self.create_vm()
-        # Ready network config that is to be written to NoCloud Iso
-        self.generate_netdata()
-        # Create nocloud iso
-        self.create_iso()
-        # Attach the iso file
-        self.attach_iso()
-        # Start the VM
-        self.start_vm()
+            # Create backing disk
+            self.create_disk()
+            # Generate xml with virt-install
+            self.create_vm()
+            # Ready network config that is to be written to NoCloud Iso
+            self.generate_netdata()
+            # Create nocloud iso
+            self.create_iso()
+            # Attach the iso file
+            self.attach_iso()
+
+        if self.is_instance_running():
+            LOGGER.info(f"{self.name} - Instance is already running.")
+        else:
+            # Start the VM
+            self.start_vm()
+
         # Save provisionning metada in vm
         self.metadata_vm()
 
@@ -221,6 +226,14 @@ class VirtualMachine:
         except:
             return False
 
+    def is_instance_running(self):
+        '''
+        Retrieve instance informations from libvirt instance
+        '''
+
+        inst = Instance()
+        inst.connect()
+        return inst.get(self.name).isActive() == 1
 
 
     def create_vm(self):

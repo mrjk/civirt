@@ -34,6 +34,10 @@ class Instance(LibVirt):
         xml = str(net.XMLDesc())
         return xml
 
+    def get(self, name):
+        return  self.conn.lookupByName(name)
+
+
 
 class Network(LibVirt):
 
