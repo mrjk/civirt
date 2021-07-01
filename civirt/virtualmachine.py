@@ -31,6 +31,7 @@ class VirtualMachine:
         self.volumes = settings.get('volumes', [])
         self.ssh_keys = settings.get('ssh_keys', [])
         self.userdata = settings.get('userdata', None)
+        self.networks = settings.get('networks', [])
 
         # Generated data
         self.directory = settings['directory']
@@ -248,6 +249,8 @@ class VirtualMachine:
                '--vcpus', str(self.cpu), '--ram', str(self.mem),
                '--print-xml']
 
+        for net in self.networks:
+            cmd.extend(['--network', f'network={net},model=virtio'])
         cmd.extend(['--name', self.name])
         cmd.extend(['--disk', os.path.abspath(self.qcow2['path'])+',format=qcow2,bus=virtio'])
         cmd.extend(['--check', 'disk_size=off'])
